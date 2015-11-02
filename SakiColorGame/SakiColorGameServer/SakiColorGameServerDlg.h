@@ -7,6 +7,7 @@
 
 // CSakiColorGameServerDlg dialog
 class CSakiColorGameTcpServer;
+class CSakiColorGameServerEngine;
 
 class CSakiColorGameServerDlg : public CDialogEx
 {
@@ -33,7 +34,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedButtonStart();
-
-	CSakiColorGameTcpServer* m_pServer;
 	afx_msg void OnDestroy();
+
+private:
+	CSakiColorGameServerEngine* m_pGameEngine;
 };

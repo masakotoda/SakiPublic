@@ -1,9 +1,11 @@
 #pragma once
 
+class CSakiColorGameServerEngine;
+
 class CSakiColorGameTcpVisitor : public CAsyncSocket
 {
 public:
-	CSakiColorGameTcpVisitor(int nVisitorId);
+	CSakiColorGameTcpVisitor(int nVisitorId, CSakiColorGameServerEngine* pEngine);
 	virtual ~CSakiColorGameTcpVisitor();
 
 	int ReceiveRequest(void* lpBuf, int nBufLen);
@@ -11,6 +13,7 @@ public:
 
 	void StartThread();
 	void StopThread();
+	int GetVisitorId();
 
 public:
 	virtual void OnReceive(int nErrorCode) override;
@@ -29,12 +32,13 @@ private:
 	const int m_nVisitorId;
 	HANDLE m_hThread;
 	int m_nStatus;	
+	CSakiColorGameServerEngine* const m_pEngine;
 };
 
 class CSakiColorGameTcpServer : public CAsyncSocket
 {
 public:
-	CSakiColorGameTcpServer(void);
+	CSakiColorGameTcpServer(CSakiColorGameServerEngine* pEngine);
 	virtual ~CSakiColorGameTcpServer(void);
 
 	bool RunServer();
@@ -48,5 +52,6 @@ private:
 
 private:
 	std::vector<CSakiColorGameTcpVisitor*> m_visitors;
+	CSakiColorGameServerEngine* const m_pEngine;
 };
 
