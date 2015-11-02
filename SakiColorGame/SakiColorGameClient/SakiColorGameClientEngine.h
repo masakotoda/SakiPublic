@@ -1,5 +1,7 @@
 #pragma once
 
+class CSakiColorGameTcpClient;
+
 class CSakiColorInfo
 {
 public:
@@ -55,11 +57,18 @@ public:
 	CSakiColorGameClientEngine(void);
 	~CSakiColorGameClientEngine(void);
 
+	void UpdateState();
+	CString GetStatus();
+	CString GetMessage();
+	void StartGame();
 	void Draw(CDC* pDC);
 	void Click(CPoint pt);
-	void AcquiredRed();
-	void AcquiredBlue();
-	void AcquiredGreen();
+	void ToggleRed();
+	void ToggleBlue();
+	void ToggleGreen();
+	bool HasRed();
+	bool HasBlue();
+	bool HasGreen();
 
 	enum
 	{
@@ -81,10 +90,17 @@ public:
 	ColorRow m_rows[countCell];
 	CSakiColorInfo* m_brushes[countColors];
 
+	bool WaitForResponse(char* response, int response_size);
+
 	bool HasColor(int index);
 
 	bool m_bHasRed;
 	bool m_bHasGreen;
 	bool m_bHasBlue;
+
+	CSakiColorGameTcpClient* m_pClient;
+
+	CString m_strLastStatus;
+	CString m_strLastMessage;
 };
 

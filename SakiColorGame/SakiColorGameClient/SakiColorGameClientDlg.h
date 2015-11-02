@@ -3,10 +3,10 @@
 //
 
 #pragma once
+#include "afxwin.h"
 
 
 // CSakiColorGameClientDlg dialog
-class CSakiColorGameTcpClient;
 class CSakiColorGameClientEngine;
 
 class CSakiColorGameClientDlg : public CDialogEx
@@ -32,14 +32,19 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
-public:
-	afx_msg void OnBnClickedButtonConnect();
 
-	CSakiColorGameClientEngine* m_pGameEngine;
-	CSakiColorGameTcpClient* m_pClient;
+private:
+	afx_msg void OnBnClickedButtonConnect();
 	afx_msg void OnDestroy();
 	afx_msg void OnBnClickedButtonRequestRed();
 	afx_msg void OnStnClickedPicture();
 	afx_msg void OnBnClickedButtonRequestGreen();
 	afx_msg void OnBnClickedButtonRequestBlue();
+
+	CSakiColorGameClientEngine* m_pGameEngine;
+	CString m_strLastStatus;
+public:
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+private:
+	CString m_strMessage;
 };
