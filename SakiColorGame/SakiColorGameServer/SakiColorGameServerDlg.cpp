@@ -7,6 +7,7 @@
 #include "SakiColorGameServerDlg.h"
 #include "afxdialogex.h"
 #include "SakiColorGameTcpServer.h"
+#include "SakiColorGameServerEngine.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -50,7 +51,7 @@ END_MESSAGE_MAP()
 
 CSakiColorGameServerDlg::CSakiColorGameServerDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CSakiColorGameServerDlg::IDD, pParent)
-	, m_pServer(nullptr)
+	, m_pGameEngine(nullptr)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -101,7 +102,7 @@ BOOL CSakiColorGameServerDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
-	m_pServer = new CSakiColorGameTcpServer();
+	m_pGameEngine = new CSakiColorGameServerEngine();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -160,7 +161,7 @@ HCURSOR CSakiColorGameServerDlg::OnQueryDragIcon()
 void CSakiColorGameServerDlg::OnBnClickedButtonStart()
 {
 	// TODO: Add your control notification handler code here
-	m_pServer->RunServer();
+	m_pGameEngine->StartGame();
 }
 
 
@@ -169,6 +170,6 @@ void CSakiColorGameServerDlg::OnDestroy()
 	CDialogEx::OnDestroy();
 
 	// TODO: Add your message handler code here
-	m_pServer->ShutdownServer();
-	delete m_pServer;
+	m_pGameEngine->EndGame();
+	delete m_pGameEngine;
 }

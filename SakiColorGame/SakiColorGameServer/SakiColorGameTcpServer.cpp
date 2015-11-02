@@ -1,11 +1,12 @@
 #include "stdafx.h"
 #include "SakiColorGameTcpServer.h"
+#include "SakiColorGameServerEngine.h"
 
-
-CSakiColorGameTcpVisitor::CSakiColorGameTcpVisitor(int nVisitorId)
+CSakiColorGameTcpVisitor::CSakiColorGameTcpVisitor(int nVisitorId, CSakiColorGameServerEngine* pEngine)
 	: m_hThread(NULL)
 	, m_nStatus(statusNone)
 	, m_nVisitorId(nVisitorId)
+	, m_pEngine(pEngine)
 {
 }
 
@@ -31,7 +32,11 @@ void CSakiColorGameTcpVisitor::OnReceive(int nErrorCode)
 	
 	char buffer[256] = { 0 };
 	Receive(buffer, 256);
-	TRACE(buffer);
+
+	char response[256] = { 0 };
+	m_pEngine->HandleMessage(this, buffer, response, 256);
+
+	Send(response, strlen(response) + 1);
 }
 
 void CSakiColorGameTcpVisitor::StartThread()
@@ -46,10 +51,18 @@ void CSakiColorGameTcpVisitor::StartThread()
 	}
 }
 
+
 void CSakiColorGameTcpVisitor::StopThread()
 {
 	m_nStatus = statusStopRequested;
 }
+
+
+int CSakiColorGameTcpVisitor::GetVisitorId()
+{
+	return m_nVisitorId;
+}
+
 
 DWORD WINAPI CSakiColorGameTcpVisitor::VisitorThread(LPVOID lpParam)
 {
@@ -63,7 +76,8 @@ DWORD WINAPI CSakiColorGameTcpVisitor::VisitorThread(LPVOID lpParam)
 	return 0;
 }
 
-CSakiColorGameTcpServer::CSakiColorGameTcpServer(void)
+CSakiColorGameTcpServer::CSakiColorGameTcpServer(CSakiColorGameServerEngine* pEngine)
+	: m_pEngine(pEngine)
 {
 }
 
@@ -106,7 +120,7 @@ void CSakiColorGameTcpServer::OnAccept(int nErrorCode)
 
 	size_t nVisitorId = m_visitors.size() + 1;
 
-	auto pVisitor = new CSakiColorGameTcpVisitor(nVisitorId);
+	auto pVisitor = new CSakiColorGameTcpVisitor(nVisitorId, m_pEngine);
 	Accept(*pVisitor);
 
 	DWORD dwTimeout = htonl(1000);
