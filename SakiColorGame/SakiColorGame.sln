@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SakiColorGameServer", "SakiColorGameServer\SakiColorGameServer.vcxproj", "{3B434E58-85DC-433F-B94C-58392DA17557}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SakiColorGameClient", "SakiColorGameClient\SakiColorGameClient.vcxproj", "{40A0C021-8BA3-47C6-89A8-BA92F21BB1E1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3B434E58-85DC-433F-B94C-58392DA17557}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3B434E58-85DC-433F-B94C-58392DA17557}.Debug|Win32.Build.0 = Debug|Win32
+		{3B434E58-85DC-433F-B94C-58392DA17557}.Release|Win32.ActiveCfg = Release|Win32
+		{3B434E58-85DC-433F-B94C-58392DA17557}.Release|Win32.Build.0 = Release|Win32
+		{40A0C021-8BA3-47C6-89A8-BA92F21BB1E1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{40A0C021-8BA3-47C6-89A8-BA92F21BB1E1}.Debug|Win32.Build.0 = Debug|Win32
+		{40A0C021-8BA3-47C6-89A8-BA92F21BB1E1}.Release|Win32.ActiveCfg = Release|Win32
+		{40A0C021-8BA3-47C6-89A8-BA92F21BB1E1}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
