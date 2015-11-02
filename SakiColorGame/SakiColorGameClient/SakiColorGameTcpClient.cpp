@@ -3,6 +3,7 @@
 
 
 CSakiColorGameTcpClient::CSakiColorGameTcpClient(void)
+	: m_bConnected(false)
 {
 }
 
@@ -10,6 +11,13 @@ CSakiColorGameTcpClient::CSakiColorGameTcpClient(void)
 CSakiColorGameTcpClient::~CSakiColorGameTcpClient(void)
 {
 }
+
+
+bool CSakiColorGameTcpClient::IsConnected()
+{
+	return m_bConnected;
+}
+
 
 bool CSakiColorGameTcpClient::ConnectToServer()
 {
@@ -46,6 +54,10 @@ bool CSakiColorGameTcpClient::DisconnectFromServer()
 
 void CSakiColorGameTcpClient::OnConnect(int nErrorCode)
 {
+	if (nErrorCode == 0)
+		m_bConnected = true;
+	else
+		m_bConnected = false;
 	__super::OnConnect(nErrorCode);
 }
 

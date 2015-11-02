@@ -6,7 +6,6 @@
 #include "SakiColorGameClient.h"
 #include "SakiColorGameClientDlg.h"
 #include "afxdialogex.h"
-#include "SakiColorGameTcpClient.h"
 #include "SakiColorGameClientEngine.h"
 
 #ifdef _DEBUG
@@ -51,8 +50,9 @@ END_MESSAGE_MAP()
 
 CSakiColorGameClientDlg::CSakiColorGameClientDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CSakiColorGameClientDlg::IDD, pParent)
-	, m_pClient(nullptr)
 	, m_pGameEngine(nullptr)
+	, m_strLastStatus(_T(""))
+	, m_strMessage(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -60,6 +60,8 @@ CSakiColorGameClientDlg::CSakiColorGameClientDlg(CWnd* pParent /*=NULL*/)
 void CSakiColorGameClientDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_STATUS, m_strLastStatus);
+	DDX_Text(pDX, IDC_MESSAGE, m_strMessage);
 }
 
 BEGIN_MESSAGE_MAP(CSakiColorGameClientDlg, CDialogEx)
@@ -72,6 +74,7 @@ BEGIN_MESSAGE_MAP(CSakiColorGameClientDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_REQUEST_GREEN, &CSakiColorGameClientDlg::OnBnClickedButtonRequestGreen)
 	ON_BN_CLICKED(IDC_BUTTON_REQUEST_BLUE, &CSakiColorGameClientDlg::OnBnClickedButtonRequestBlue)
 	ON_STN_CLICKED(IDC_PICTURE, &CSakiColorGameClientDlg::OnStnClickedPicture)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -107,7 +110,6 @@ BOOL CSakiColorGameClientDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
-	m_pClient = new CSakiColorGameTcpClient();
 	m_pGameEngine = new CSakiColorGameClientEngine();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -171,11 +173,14 @@ HCURSOR CSakiColorGameClientDlg::OnQueryDragIcon()
 }
 
 
-
 void CSakiColorGameClientDlg::OnBnClickedButtonConnect()
 {
 	// TODO: Add your control notification handler code here
-	m_pClient->ConnectToServer();
+	m_pGameEngine->StartGame();
+	m_strLastStatus = m_pGameEngine->GetStatus();
+	UpdateData(FALSE);
+
+	SetTimer(1, 250, nullptr);
 }
 
 
@@ -184,9 +189,6 @@ void CSakiColorGameClientDlg::OnDestroy()
 	CDialogEx::OnDestroy();
 
 	// TODO: Add your message handler code here
-	m_pClient->DisconnectFromServer();
-	delete m_pClient;
-
 	delete m_pGameEngine;
 }
 
@@ -194,23 +196,61 @@ void CSakiColorGameClientDlg::OnDestroy()
 void CSakiColorGameClientDlg::OnBnClickedButtonRequestRed()
 {
 	// TODO: Add your control notification handler code here
-	char request[] = "Red";
-	m_pClient->Send((BYTE*)request, sizeof(request));
-	m_pGameEngine->AcquiredRed();
+	m_pGameEngine->ToggleRed();
+
+	m_strMessage = m_pGameEngine->GetMessage();
+	UpdateData(FALSE);
+
+	auto btn = GetDlgItem(IDC_BUTTON_REQUEST_RED);
+	if (m_pGameEngine->HasRed())
+	{
+		btn->SetWindowText(_T("Return Red"));
+	}
+	else
+	{
+		btn->SetWindowText(_T("Request Red"));
+	}
 }
 
 
 void CSakiColorGameClientDlg::OnBnClickedButtonRequestGreen()
 {
 	// TODO: Add your control notification handler code here
-	m_pGameEngine->AcquiredGreen();
+	m_pGameEngine->ToggleGreen();
+
+	m_strMessage = m_pGameEngine->GetMessage();
+	UpdateData(FALSE);
+
+	auto btn = GetDlgItem(IDC_BUTTON_REQUEST_GREEN);
+	if (m_pGameEngine->HasGreen())
+	{
+		btn->SetWindowText(_T("Return Green"));
+	}
+	else
+	{
+		btn->SetWindowText(_T("Request Green"));
+	}
 }
 
 
 void CSakiColorGameClientDlg::OnBnClickedButtonRequestBlue()
 {
 	// TODO: Add your control notification handler code here
-	m_pGameEngine->AcquiredBlue();
+	m_pGameEngine->ToggleBlue();
+
+	m_strMessage = m_pGameEngine->GetMessage();
+	UpdateData(FALSE);
+
+	auto btn = GetDlgItem(IDC_BUTTON_REQUEST_BLUE);
+	if (m_pGameEngine->HasBlue())
+	{
+		btn->SetWindowText(_T("Return Blue"));
+	}
+	else
+	{
+		btn->SetWindowText(_T("Request Blue"));
+	}
+
 }
 
 
@@ -228,3 +268,16 @@ void CSakiColorGameClientDlg::OnStnClickedPicture()
 }
 
 
+void CSakiColorGameClientDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: Add your message handler code here and/or call default
+
+	m_pGameEngine->UpdateState();
+	if (m_pGameEngine->GetStatus().Compare(m_strLastStatus) != 0)
+	{
+		m_strLastStatus = m_pGameEngine->GetStatus();
+		UpdateData(FALSE);
+	}
+
+	CDialogEx::OnTimer(nIDEvent);
+}

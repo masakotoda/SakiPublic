@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "SakiColorGameTcpClient.h"
 #include "SakiColorGameClientEngine.h"
 
 
@@ -63,13 +64,12 @@ void CSakiColorGB::Initialize()
 
 
 CSakiColorGameClientEngine::CSakiColorGameClientEngine(void)
-	:
-	 m_bHasRed(false)
+	: m_bHasRed(false)
 	, m_bHasGreen(false)
 	, m_bHasBlue(false)
-
+	, m_pClient(nullptr)
 {
-	srand (time(NULL));
+	srand(static_cast<unsigned int>(time(NULL)));
 
 	//Generate number between 0 and 5 (0: Red, 1: Green, 2: Blue, 3: R+G, 4: R+B, 5: G+B)
 	for (int i = 0; i < countCell; i++)
@@ -92,6 +92,8 @@ CSakiColorGameClientEngine::CSakiColorGameClientEngine(void)
 	{
 		x->Initialize();
 	}
+
+	m_pClient = new CSakiColorGameTcpClient();
 }
 
 
@@ -101,6 +103,35 @@ CSakiColorGameClientEngine::~CSakiColorGameClientEngine(void)
 	{
 		delete x;
 	}
+
+	m_pClient->DisconnectFromServer();
+	delete m_pClient;
+}
+
+void CSakiColorGameClientEngine::UpdateState()
+{
+	if (m_pClient->IsConnected())
+	{
+		m_strLastStatus = _T("Connected");
+	}
+}
+
+CString CSakiColorGameClientEngine::GetStatus()
+{
+	return m_strLastStatus;
+}
+
+CString CSakiColorGameClientEngine::GetMessage()
+{
+	return m_strLastMessage;
+}
+
+
+void CSakiColorGameClientEngine::StartGame()
+{
+	m_strLastStatus = _T("Connecting to server.");
+	
+	m_pClient->ConnectToServer();
 }
 
 void CSakiColorGameClientEngine::Draw(CDC* pDC)
@@ -157,24 +188,132 @@ void CSakiColorGameClientEngine::Click(CPoint pt)
 }
 
 
-void CSakiColorGameClientEngine::AcquiredRed()
+bool CSakiColorGameClientEngine::WaitForResponse(char* response, int response_size)
 {
-	m_bHasRed = m_bHasRed ? false : true;
+	for (int i = 0; i < 10; i++)
+	{
+		int nRet = m_pClient->Receive(response, response_size);
+		if (nRet > 0)
+		{
+			return true;
+		}
+		Sleep(100);
+	}
+
+	return false;
 }
 
 
-
-void CSakiColorGameClientEngine::AcquiredBlue()
+void CSakiColorGameClientEngine::ToggleRed()
 {
-	m_bHasBlue = m_bHasBlue ? false : true;
+	bool bOK = false;
+
+	const int bufSize = 32;
+	char request[bufSize] = { 0 };
+	char response[bufSize] = { 0 };
+
+	if (!m_bHasRed)
+	{
+		strcpy_s(request, "Request Red");
+	}
+	else
+	{
+		strcpy_s(request, "Return Red");
+	}
+
+	m_pClient->Send((BYTE*)request, sizeof(request));
+	
+	WaitForResponse(response, bufSize);
+	
+	if (strcmp(response, "OK") == 0)
+	{
+		m_bHasRed = m_bHasRed ? false : true;
+	}
+	else
+	{
+		m_strLastMessage = _T("Someone else is using Red.");
+	}
 }
 
 
-
-void CSakiColorGameClientEngine::AcquiredGreen()
+void CSakiColorGameClientEngine::ToggleBlue()
 {
-	m_bHasGreen = m_bHasGreen ? false : true;
+	bool bOK = false;
+
+	const int bufSize = 32;
+	char request[bufSize] = { 0 };
+	char response[bufSize] = { 0 };
+
+	if (!m_bHasBlue)
+	{
+		strcpy_s(request, "Request Blue");
+	}
+	else
+	{
+		strcpy_s(request, "Return Blue");
+	}
+
+	m_pClient->Send((BYTE*)request, sizeof(request));
+	
+	WaitForResponse(response, bufSize);
+	
+	if (strcmp(response, "OK") == 0)
+	{
+		m_bHasBlue = m_bHasBlue ? false : true;
+	}
+	else
+	{
+		m_strLastMessage = _T("Someone else is using Blue.");
+	}
 }
+
+
+void CSakiColorGameClientEngine::ToggleGreen()
+{
+	bool bOK = false;
+
+	const int bufSize = 32;
+	char request[bufSize] = { 0 };
+	char response[bufSize] = { 0 };
+
+	if (!m_bHasGreen)
+	{
+		strcpy_s(request, "Request Green");
+	}
+	else
+	{
+		strcpy_s(request, "Return Green");
+	}
+
+	m_pClient->Send((BYTE*)request, sizeof(request));
+	
+	WaitForResponse(response, bufSize);
+	
+	if (strcmp(response, "OK") == 0)
+	{
+		m_bHasGreen = m_bHasGreen ? false : true;
+	}
+	else
+	{
+		m_strLastMessage = _T("Someone else is using Green.");
+	}
+}
+
+bool CSakiColorGameClientEngine::HasRed()
+{
+	return m_bHasRed;
+}
+
+bool CSakiColorGameClientEngine::HasBlue()
+{
+	return m_bHasBlue;
+}
+
+bool CSakiColorGameClientEngine::HasGreen()
+{
+	return m_bHasGreen;
+}
+
 
 bool CSakiColorGameClientEngine::HasColor(int index)
 {
