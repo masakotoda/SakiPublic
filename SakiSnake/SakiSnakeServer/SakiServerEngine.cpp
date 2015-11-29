@@ -607,12 +607,19 @@ void CSakiServerEngine::InitializePlayer(CSakiPlayer* player)
 
 void CSakiServerEngine::BroadcastBoard()
 {
+	// Oh no. This is a mess :-(
+	auto headerSize = sizeof(SakiSnakeCommon::MsgHeader);
+	int size = headerSize + m_board.CellCount();
+	auto buf = new unsigned char[size];
+	auto header = reinterpret_cast<SakiSnakeCommon::MsgHeader*>(buf);
+	header->_id = SakiSnakeCommon::msgUpdateBoard;
+	header->_length = static_cast<short>(m_board.CellCount());
+	memmove(buf + headerSize, m_board.Cells(), m_board.CellCount());
+
 	for (auto x : m_players)
 	{
-		auto msg = SakiSnakeCommon::Msg<SakiSnakeCommon::msgUpdateBoard, SakiSnakeCommon::UpdateBoardMsg>();
-		msg._header._length = static_cast<short>(m_board.CellCount());
-		int size = sizeof(msg._header) + m_board.CellCount();
-		x.second->Send((unsigned char*)&msg._header, sizeof(msg._header));
-		x.second->Send(m_board.Cells(), m_board.CellCount());
+		x.second->Send(buf, size);
 	}
+
+	delete[] buf;
 }
