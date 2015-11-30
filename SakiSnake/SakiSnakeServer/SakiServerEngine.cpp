@@ -340,7 +340,7 @@ void CSakiServerEngine::HandleStateCountDown()
 	{
 		SakiSnakeCommon::Msg<SakiSnakeCommon::msgCountDown, SakiSnakeCommon::CountDownMsg> msg;
 		msg._data._second = second;
-		x.second->Send(reinterpret_cast<unsigned char*>(&msg), sizeof(msg));
+		x.second->Send(&msg);
 	}
 }
 
@@ -419,7 +419,7 @@ void CSakiServerEngine::HandleStateGameOver()
 		{
 			auto msg = SakiSnakeCommon::Msg<SakiSnakeCommon::msgGameOver, SakiSnakeCommon::GameOverMsg>();
 			msg._data._winner = winner;
-			x.second->Send((unsigned char*)&msg, sizeof(msg));
+			x.second->Send(&msg);
 		}
 	}
 	else if (::GetTickCount64() - m_startEnding > 5000) // Reset game 5 seconds after the game over.
@@ -483,7 +483,7 @@ bool CSakiServerEngine::OnAccepted(CAsyncSocket* pVisitor)
 			msg._data._r = player->Color().r;
 			msg._data._g = player->Color().g;
 			msg._data._b = player->Color().b;
-			player->Send((unsigned char*)&msg, sizeof(msg));
+			player->Send(&msg);
 		}
 
 		// Send Joined message to everybody
@@ -498,7 +498,7 @@ bool CSakiServerEngine::OnAccepted(CAsyncSocket* pVisitor)
 					msg._data._r = y.second->Color().r;
 					msg._data._g = y.second->Color().g;
 					msg._data._b = y.second->Color().b;
-					x.second->Send((unsigned char*)&msg, sizeof(msg));
+					x.second->Send(&msg);
 				}
 			}
 		}

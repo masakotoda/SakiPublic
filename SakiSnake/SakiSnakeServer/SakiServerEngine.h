@@ -32,6 +32,10 @@ public:
 	int NextY() const;
 	
 	bool Send(unsigned char* data, int length);
+	template <class T> bool Send(T* data)
+	{
+		return Send(reinterpret_cast<unsigned char*>(data), sizeof(T));
+	}
 
 private:
 	int m_playerId = 0;
