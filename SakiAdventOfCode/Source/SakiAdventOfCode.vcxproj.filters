@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay01.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay02.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiFileLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay03.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay04.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay05.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay06.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay07.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay08.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay09.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay10.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay11.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay12.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay13.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay14.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay15.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay16.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay17.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay18.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay19.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay20.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay21.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sakiday22.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay23.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay24.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SakiDay25.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiAdventOfCode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiFileLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay01.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay02.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay03.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay04.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay05.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay06.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay07.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay08.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay09.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay10.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay11.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay12.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay13.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay14.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay15.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay16.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay17.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay18.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay19.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay20.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay21.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay22.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay23.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay24.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SakiDay25.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
