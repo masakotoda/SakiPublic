@@ -10,6 +10,8 @@
 
 #include <vector>
 #include <map>
+#include <unordered_set>
+#include <unordered_map>
 #include <algorithm>
 
 #ifdef _DEBUG
@@ -324,6 +326,78 @@ void CSakiSkylineDlg::OnBnClickedButton1()
 					pDC->LineTo(p.first, max_height - p.second.y0);
 					pDC->LineTo(p.first, max_height - p.second.y1);
 				}
+			}
+		);
+		pDC->LineTo(0, max_height);
+
+		ReleaseDC(pDC);
+	}
+
+	// Generate the skyline and draw it - little smarter way.
+	{
+		struct Info
+		{
+			std::unordered_map<int, int> m_lefts;	// id, height
+			std::unordered_set<int> m_rights;		// id
+		};
+
+		auto pushRect = [] (int id, int l, int r, int h, std::map<int, Info>& buffer)
+		{
+			buffer[l].m_lefts[id] = h;
+			buffer[r].m_rights.insert(id);
+		};
+
+		std::map<int, Info> buffer;
+		for (int i = 0; i < count; i++)
+		{
+			int l = min(lefts[i], rights[i]);
+			int r = max(lefts[i], rights[i]);
+			int h = heights[i];
+			if (l != r)
+			{
+				pushRect(i + 1, l, r, h, buffer);
+			}
+		}
+
+		struct
+		{
+			int height;
+			std::unordered_map<int, int> roster; // id, height
+		} cursor;
+		cursor.height = 0;
+
+		auto pDC = prepDC(this, IDC_STATIC3, RGB(0, 0, 255));
+		pDC->MoveTo(0, max_height);
+		std::for_each (buffer.begin(), buffer.end(),
+			[pDC, max_height, &cursor](std::pair<int, Info> p)
+			{
+				int height = 0;
+
+				// remove all roster that would expire i.e. if it's belongs to m_right
+				for (auto it = cursor.roster.begin(); it != cursor.roster.end();)
+				{
+					if (p.second.m_rights.find(it->first) == p.second.m_rights.end())
+					{
+						height = max(height, it->second);
+						it++;
+					}
+					else
+					{
+						it = cursor.roster.erase(it);
+					}
+				}
+
+				// push all m_left to roster.
+				for (auto it = p.second.m_lefts.begin(); it != p.second.m_lefts.end(); it++)
+				{
+					height = max(height, it->second);
+					cursor.roster[it->first] = it->second;
+				}
+
+				// line from previous height to new height
+				pDC->LineTo(p.first, max_height - cursor.height);
+				pDC->LineTo(p.first, max_height - height);
+				cursor.height = height;
 			}
 		);
 		pDC->LineTo(0, max_height);
