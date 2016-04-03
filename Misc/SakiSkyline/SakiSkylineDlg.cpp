@@ -404,4 +404,73 @@ void CSakiSkylineDlg::OnBnClickedButton1()
 
 		ReleaseDC(pDC);
 	}
+
+	// Generate the skyline and draw it - maybe smartest way.
+	{
+		struct Info
+		{
+			std::vector<std::pair<int, int>> m_lefts;	// height, right
+		};
+
+		auto pushRect = [] (int l, int r, int h, std::map<int, Info>& buffer)
+		{
+			Info info = buffer[r]; // make an expire event
+			buffer[l].m_lefts.push_back(std::pair<int, int>(h, r));
+		};
+
+		std::map<int, Info> buffer;
+		for (int i = 0; i < count; i++)
+		{
+			int l = min(lefts[i], rights[i]);
+			int r = max(lefts[i], rights[i]);
+			int h = heights[i];
+			if (l != r)
+			{
+				pushRect(l, r, h, buffer);
+			}
+		}
+
+		struct
+		{
+			int height;
+			std::multimap<int, int> roster; // height, right
+		} cursor;
+		cursor.height = max_height;
+
+		auto pDC = prepDC(this, IDC_STATIC4, RGB(255, 255, 0));
+		pDC->MoveTo(0, max_height);
+		std::for_each (buffer.begin(), buffer.end(),
+			[pDC, max_height, &cursor](std::pair<int, Info> p)
+			{
+				// push all m_left to roster.
+				for (auto it = p.second.m_lefts.begin(); it != p.second.m_lefts.end(); it++)
+				{
+					cursor.roster.insert(std::pair<int, int>(max_height - it->first, it->second));
+				}
+
+				// find the highest one that hasn't expired.
+				int height = max_height;
+				for (auto it = cursor.roster.begin(); it != cursor.roster.end();)
+				{
+					if (it->second <= p.first)
+					{
+						it = cursor.roster.erase(it);
+					}
+					else
+					{
+						height = it->first;
+						break;
+					}
+				}
+
+				// line from previous height to new height
+				pDC->LineTo(p.first, cursor.height);
+				pDC->LineTo(p.first, height);
+				cursor.height = height;
+			}
+		);
+		pDC->LineTo(0, max_height);
+
+		ReleaseDC(pDC);
+	}
 }
