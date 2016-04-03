@@ -156,126 +156,119 @@ HCURSOR CSakiSkylineDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+namespace
+{
 
 struct HeadTailY
 {
-	HeadTailY() : headY(0) , tailY(0) {}
-	HeadTailY(int _minY, int _maxY) : headY(_minY) , tailY(_maxY) {}
+	HeadTailY() : y0(0) , y1(0) {}
+	HeadTailY(int _minY, int _maxY) : y0(_minY) , y1(_maxY) {}
 
-	int headY;
-	int tailY;
+	int y0;
+	int y1;
 };
 
-std::map<int, HeadTailY> buffer;
-
-void pushRect(int l, int r, int h)
+void pushRect(int l, int r, int h, std::map<int, HeadTailY>& buffer)
 {
-	int left = -1;
+	// Get left bound
+	std::pair<int, HeadTailY> leftBound(-1, HeadTailY());
 	{
-		auto lower = buffer.lower_bound(l);
-		if (lower != buffer.end() && lower != buffer.begin())
+		auto it = buffer.lower_bound(l);
+		if (it != buffer.end() && it != buffer.begin())
 		{
-			lower--;
-			if (lower->second.tailY > 0)
+			it--;
+			if (it->second.y1 > 0)
 			{
-				left = lower->first;
+				leftBound = *it;
 			}
 		}
 	}
 	
-	int h1 = h;
+	// Get right bound
+	std::pair<int, HeadTailY> rightBound(-1, HeadTailY());
 	{
-		auto t = buffer.find(l);
-		if (t != buffer.end())
+		auto it = buffer.upper_bound(r);
+		if (it != buffer.end())
 		{
-			h1 = max(h1, t->second.headY);
-			h1 = max(h1, t->second.tailY);
-		}
-	}
-
-
-	HeadTailY up;
-	int right = -1;
-	{
-		auto upper = buffer.upper_bound(r);
-		if (upper != buffer.end())
-		{
-			upper--;
-			if (upper != buffer.end())
+			it--;
+			if (it != buffer.end())
 			{
-				right = upper->first;
-				up = upper->second;
+				rightBound = *it;
 			}
 		}
 	}
 
-	int h2 = h;
+	// Fix left height if there is overlap.
+	int leftH = h;
+	auto leftOverlap = buffer.find(l);
+	if (leftOverlap != buffer.end())
 	{
-		auto t = buffer.find(r);
-		if (t != buffer.end())
-		{
-			h2 = max(h2, t->second.headY);
-			h2 = max(h2, t->second.tailY);
-		}
+		leftH = max(leftH, max(leftOverlap->second.y0, leftOverlap->second.y1));
 	}
 
-	if (left < 0)
+	// Fix right height if there is overlap.
+	int rightH = h;
+	auto rightOverlap = buffer.find(r);
+	if (rightOverlap != buffer.end())
 	{
-		buffer[l] = HeadTailY(0, h1);
-	}
-	else
-	{
-		auto t = buffer.find(l);
-		if (t != buffer.end())
-		{
-			if (t->second.headY > t->second.tailY) // down
-				buffer[l] = HeadTailY(t->second.headY, max(h, t->second.tailY));
-			else
-				buffer[l] = HeadTailY(t->second.headY, max(h, t->second.tailY));
-		}
-		else
-		{
-			auto it = buffer.find(left);
-			if (it->second.tailY < h)
-			{
-				buffer[l] = HeadTailY(it->second.tailY, h);
-			}
-		}
+		rightH = max(rightH, max(rightOverlap->second.y0, rightOverlap->second.y1));
 	}
 
-	if (right < 0)
+	// Push left side
+	if (leftBound.first < 0)
 	{
-		buffer[r] = HeadTailY(h2, 0);
+		buffer[l] = HeadTailY(0, leftH);
 	}
-	else
+	else if (leftOverlap != buffer.end())
 	{
-		auto it = buffer.find(right);
-		if (it->first == r)
-		{
-			if (up.headY > up.tailY) // down
-				buffer[r] = HeadTailY(max(h, up.headY), up.tailY);
-			else
-				buffer[r] = HeadTailY(max(h, up.headY), up.tailY);
-		}
-		else if (up.tailY < h)
-		{
-			buffer[r] = HeadTailY(h, up.tailY);
-		}
+		buffer[l] = HeadTailY(leftOverlap->second.y0, max(h, leftOverlap->second.y1));
+	}
+	else if (leftBound.second.y1 < h)
+	{
+		buffer[l] = HeadTailY(leftBound.second.y1, h);
 	}
 
+	// Push right side
+	if (rightBound.first < 0)
+	{
+		buffer[r] = HeadTailY(rightH, 0);
+	}
+	else if (rightOverlap != buffer.end())
+	{
+		buffer[r] = HeadTailY(max(h, rightOverlap->second.y0), rightOverlap->second.y1);
+	}
+	else if (rightBound.second.y1 < h)
+	{
+		buffer[r] = HeadTailY(h, rightBound.second.y1);
+	}
+
+	// Raise the vertics to new horizontal line if they are lower.
 	auto lower = buffer.lower_bound(l);
 	auto upper = buffer.upper_bound(r);
-
 	for (auto it = lower; it != upper; it++)
 	{
 		if (it->first > l && it->first < r)
 		{
-			it->second.tailY = max(it->second.tailY, h);
-			it->second.headY = max(it->second.headY, h);
+			it->second.y1 = max(it->second.y1, h);
+			it->second.y0 = max(it->second.y0, h);
 		}
 	}
 }
 
+CDC* prepDC(CDialog* dialog, int resId, COLORREF color)
+{
+	CWnd* item = dialog->GetDlgItem(resId);
+	CDC* pDC = item->GetDC();
+	CRect rect;
+	item->GetClientRect(rect);
+	rect.InflateRect(1, 1);
+	CBrush bg(color);
+	pDC->FillRect(rect, &bg);
+
+	return pDC;
+}
+
+}
 
 
 void CSakiSkylineDlg::OnBnClickedButton1()
@@ -288,34 +281,10 @@ void CSakiSkylineDlg::OnBnClickedButton1()
 	auto rights = getRandoms(0, max_width, count);
 	auto heights = getRandoms(10, max_height, count);
 
-	auto count0 = std::count_if(lefts.begin(), lefts.end(), [](int val) -> bool { return val == 0; } );
-	auto count100 = std::count_if(lefts.begin(), lefts.end(), [max_width](int val) -> bool { return val == max_width; } );
-
+	// This is what I'm expecting to see.
 	{
-		auto item = GetDlgItem(IDC_STATIC1);
-		CDC* pDC = item->GetDC();
-		CBrush bg(RGB(255, 0, 0));
-		CRect r(0, 0, max_width, max_height);
-		r.InflateRect(1, 1);
-		pDC->FillRect(r, &bg);
-
+		auto pDC = prepDC(this, IDC_STATIC1, RGB(255, 0, 0));
 		CBrush brush(RGB(0, 0, 0));
-		for (int i = 0; i < count; i++)
-		{
-			int l = min(lefts[i], rights[i]);
-			int r = max(lefts[i], rights[i]);
-			if (l != r)
-			{
-				CRect rect(l, max_height - heights[i], r, max_height);
-				pDC->FillRect(rect, &brush);
-			}
-		}
-		ReleaseDC(pDC);
-	}
-
-
-	{
-		buffer.clear();
 		for (int i = 0; i < count; i++)
 		{
 			int l = min(lefts[i], rights[i]);
@@ -323,28 +292,41 @@ void CSakiSkylineDlg::OnBnClickedButton1()
 			int h = heights[i];
 			if (l != r)
 			{
-				pushRect(l, r, h);
+				CRect rect(l, max_height - h, r, max_height);
+				pDC->FillRect(rect, &brush);
+			}
+		}
+		ReleaseDC(pDC);
+	}
+
+
+	// Generate the skyline and draw it.
+	{
+		std::map<int, HeadTailY> buffer;
+		for (int i = 0; i < count; i++)
+		{
+			int l = min(lefts[i], rights[i]);
+			int r = max(lefts[i], rights[i]);
+			int h = heights[i];
+			if (l != r)
+			{
+				pushRect(l, r, h, buffer);
 			}
 		}
 
-		auto item = GetDlgItem(IDC_STATIC2);
-		CDC* pDC = item->GetDC();
-		CBrush bg(RGB(0, 255, 0));
-		CRect rect(0, 0, max_width, max_height);
-		rect.InflateRect(1, 1);
-		pDC->FillRect(rect, &bg);
-
+		auto pDC = prepDC(this, IDC_STATIC2, RGB(0, 255, 0));
 		pDC->MoveTo(0, max_height);
 		std::for_each (buffer.begin(), buffer.end(), 
 			[pDC, max_height](std::pair<int, HeadTailY> p) 
 			{
-				if (p.second.headY != p.second.tailY)
+				if (p.second.y0 != p.second.y1)
 				{
-					pDC->LineTo(p.first, max_height - p.second.headY);
-					pDC->LineTo(p.first, max_height - p.second.tailY);
+					pDC->LineTo(p.first, max_height - p.second.y0);
+					pDC->LineTo(p.first, max_height - p.second.y1);
 				}
 			}
 		);
+		pDC->LineTo(0, max_height);
 
 		ReleaseDC(pDC);
 	}
