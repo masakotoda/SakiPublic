@@ -159,19 +159,19 @@ HCURSOR CSakiSkylineDlg::OnQueryDragIcon()
 namespace
 {
 
-struct HeadTailY
+struct VertEdge
 {
-	HeadTailY() : y0(0) , y1(0) {}
-	HeadTailY(int _minY, int _maxY) : y0(_minY) , y1(_maxY) {}
+	VertEdge() : y0(0) , y1(0) {}
+	VertEdge(int _y0, int _y1) : y0(_y0) , y1(_y1) {}
 
-	int y0;
-	int y1;
+	int y0; // from
+	int y1; // to
 };
 
-void pushRect(int l, int r, int h, std::map<int, HeadTailY>& buffer)
+void pushRect(int l, int r, int h, std::map<int, VertEdge>& buffer)
 {
 	// Get left bound
-	std::pair<int, HeadTailY> leftBound(-1, HeadTailY());
+	std::pair<int, VertEdge> leftBound(-1, VertEdge());
 	{
 		auto it = buffer.lower_bound(l);
 		if (it != buffer.end() && it != buffer.begin())
@@ -185,7 +185,7 @@ void pushRect(int l, int r, int h, std::map<int, HeadTailY>& buffer)
 	}
 	
 	// Get right bound
-	std::pair<int, HeadTailY> rightBound(-1, HeadTailY());
+	std::pair<int, VertEdge> rightBound(-1, VertEdge());
 	{
 		auto it = buffer.upper_bound(r);
 		if (it != buffer.end())
@@ -217,29 +217,29 @@ void pushRect(int l, int r, int h, std::map<int, HeadTailY>& buffer)
 	// Push left side
 	if (leftBound.first < 0)
 	{
-		buffer[l] = HeadTailY(0, leftH);
+		buffer[l] = VertEdge(0, leftH);
 	}
 	else if (leftOverlap != buffer.end())
 	{
-		buffer[l] = HeadTailY(leftOverlap->second.y0, max(h, leftOverlap->second.y1));
+		buffer[l] = VertEdge(leftOverlap->second.y0, max(h, leftOverlap->second.y1));
 	}
 	else if (leftBound.second.y1 < h)
 	{
-		buffer[l] = HeadTailY(leftBound.second.y1, h);
+		buffer[l] = VertEdge(leftBound.second.y1, h);
 	}
 
 	// Push right side
 	if (rightBound.first < 0)
 	{
-		buffer[r] = HeadTailY(rightH, 0);
+		buffer[r] = VertEdge(rightH, 0);
 	}
 	else if (rightOverlap != buffer.end())
 	{
-		buffer[r] = HeadTailY(max(h, rightOverlap->second.y0), rightOverlap->second.y1);
+		buffer[r] = VertEdge(max(h, rightOverlap->second.y0), rightOverlap->second.y1);
 	}
 	else if (rightBound.second.y1 < h)
 	{
-		buffer[r] = HeadTailY(h, rightBound.second.y1);
+		buffer[r] = VertEdge(h, rightBound.second.y1);
 	}
 
 	// Raise the vertics to new horizontal line if they are lower.
@@ -302,7 +302,7 @@ void CSakiSkylineDlg::OnBnClickedButton1()
 
 	// Generate the skyline and draw it.
 	{
-		std::map<int, HeadTailY> buffer;
+		std::map<int, VertEdge> buffer;
 		for (int i = 0; i < count; i++)
 		{
 			int l = min(lefts[i], rights[i]);
@@ -317,7 +317,7 @@ void CSakiSkylineDlg::OnBnClickedButton1()
 		auto pDC = prepDC(this, IDC_STATIC2, RGB(0, 255, 0));
 		pDC->MoveTo(0, max_height);
 		std::for_each (buffer.begin(), buffer.end(), 
-			[pDC, max_height](std::pair<int, HeadTailY> p) 
+			[pDC, max_height](std::pair<int, VertEdge> p) 
 			{
 				if (p.second.y0 != p.second.y1)
 				{
